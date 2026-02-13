@@ -5,99 +5,51 @@
 ![Badge Firebird](https://img.shields.io/badge/Database-FirebirdSQL-orange)
 ![Badge License](https://img.shields.io/badge/License-MIT-blue)
 
-> **Modernização de Gestão de Ordens de Serviço:** Um sistema web Fullstack desenvolvido para integrar e modernizar fluxos de trabalho de assistências técnicas que utilizam bancos de dados legados (Firebird SQL).
+> **Modernizing Service Order Management:** A Fullstack web application developed to integrate and modernize workflows for technical support centers using legacy databases (Firebird SQL).
 
-## 🎯 Sobre o Projeto
+## 🎯 About the Project
 
-Este projeto nasceu da necessidade de agilizar o atendimento em assistências técnicas. O objetivo foi criar uma interface web moderna, responsiva e ágil que consumisse dados diretamente de um ERP Desktop legado, sem necessidade de migração de dados complexa.
+This project was born from the need to streamline service in technical assistance environments. The main goal was to create a modern, responsive, and agile web interface that consumes data directly from a legacy Desktop ERP, without the need for complex data migrations.
 
-O sistema permite que técnicos gerenciem Ordens de Serviço (OS) em tempo real, coletem assinaturas digitais e evitem o uso do papel físico em meio aos atendimentos diários facilitando o dia a dia e agilizando os procedimentos padrões da empresa.
+The system allows technicians to manage Service Orders (SO) in real-time, collect digital signatures, and eliminate physical paper usage during daily operations, facilitating routine tasks and speeding up standard company procedures.
 
-## ✨ Funcionalidades Principais
 
-* **📊 Dashboard Interativo:** Visão geral de OS abertas, em andamento e concluídas com indicadores de performance.
-* **📋 Kanban de Status:** Atualização de status (Novo → Andamento → Concluído) via *drag-and-drop* ou seleção rápida.
-* **✍️ Assinatura Digital:** Captura de assinatura do cliente diretamente na tela (touch ou mouse) usando `signature_pad`.
-* **🖨️ Impressão Inteligente:** Layout CSS otimizado para impressão térmica (cupom) e A4.
-* **🔍 Busca Inteligente:** Pesquisa de clientes e OS otimizada para evitar erros de truncamento em bancos SQL antigos.
 
-## 🛠️ Tecnologias Utilizadas
+## ✨ Key Features
+
+* **📊 Interactive Dashboard:** Overview of new, in-progress, and completed Service Orders with real-time performance indicators.
+* **📋 Modern Workflow:** Rapid status updates (New → In Progress → Completed) via a clean, technician-focused interface.
+* **✍️ Digital Signature:** Capture customer signatures directly on the screen (touch or mouse) using `signature_pad`.
+* **🖨️ Smart Printing:** CSS layout optimized for both thermal receipt printers (POS) and standard A4 document printing.
+* **🔍 Optimized Search:** Intelligent client and SO search designed to handle legacy database constraints efficiently.
+
+## 🛠️ Tech Stack
 
 * **Backend:** Node.js, Express.js.
-* **Frontend:** EJS (Server-side rendering), CSS3 Responsivo, JavaScript (ES6+).
-* **Banco de Dados:** Firebird SQL (Integração direta com `node-firebird`).
-* **Ferramentas:** `dotenv` (variáveis de ambiente), `signature_pad`.
+* **Frontend:** EJS (Server-side rendering), Responsive CSS3, JavaScript (ES6+).
+* **Database:** Firebird SQL (Direct integration via `node-firebird`).
+* **Tools:** `dotenv` (environment variables), `express-session` (authentication).
 
 ## 📸 Screenshots
 
-| Dashboard | Edição de OS |
+| Dashboard | SO Editor |
 | :---: | :---: |
-| ![Dashboard](https://via.placeholder.com/400x200?text=Dashboard+Screenshot) | ![Formulário](https://via.placeholder.com/400x200?text=Formulario+OS) |
+| <img src="https://github.com/user-attachments/assets/9bf82179-53c5-44db-83ce-3b4fcf974111" width="400"> | <img src="https://github.com/user-attachments/assets/7fec92ac-73a2-4c5d-ae22-ca274ed741b4" width="400"> |
 
-| Kanban | Assinatura Digital |
+| Kanban Flow | Digital Signature |
 | :---: | :---: |
-| ![Kanban](https://via.placeholder.com/400x200?text=Kanban+Flow) | ![Assinatura](https://via.placeholder.com/400x200?text=Signature+Pad) |
+| <img src="https://github.com/user-attachments/assets/ee7f9aab-adb0-4c16-ad36-2acb867d4e51" width="400"> | <img src="https://github.com/user-attachments/assets/bbb76887-f5d6-4208-9ddf-79fe4a65b225" width="400"> |
 
-## 🚀 Como Rodar o Projeto
+## 🚀 Getting Started
 
-### Pré-requisitos
+### Prerequisites
 
-* [Node.js](https://nodejs.org/) instalado.
-* Banco de dados Firebird (arquivo `.FDB`) ou use o script de criação abaixo.
+* [Node.js](https://nodejs.org/) installed (v18 or higher).
+* Firebird Database engine installed (or access to a `.FDB` file).
 
-### Instalação
+### Installation
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/SEU-USUARIO/service-manager-web.git](https://github.com/SEU-USUARIO/service-manager-web.git)
-    cd service-manager-web
-    ```
-
-2.  **Instale as dependências:**
-    ```bash
-    npm install
-    ```
-
-3.  **Configure as Variáveis de Ambiente:**
-    Crie um arquivo `.env` na raiz do projeto baseado no `.env.example`:
-    ```env
-    DB_HOST=127.0.0.1
-    DB_PORT=3050
-    DB_DATABASE=C:/Caminho/Para/Seu/Banco.FDB
-    DB_USER=SYSDBA
-    DB_PASSWORD=masterkey
-    SESSION_SECRET=sua_chave_secreta_aqui
-    PORT=3000
-    ```
-
-4.  **Prepare o Banco de Dados:**
-    Se você não tiver o banco legado, execute o script SQL disponível em `database_schema.sql` para criar as tabelas necessárias.
-
-5.  **Inicie o servidor:**
-    ```bash
-    npm start
-    ```
-
-6.  **Acesse:** Abra `http://localhost:3000` no seu navegador.
-
-## 🗄️ Estrutura do Banco de Dados (Resumo)
-
-O sistema foi modelado para interagir com as seguintes tabelas principais:
-
-* `TB_OS`: Tabela central das Ordens de Serviço.
-* `TB_CLIENTE`: Cadastro de clientes.
-* `TB_OS_ITEM`: Peças e serviços vinculados à OS.
-* `TB_OS_FOTO`: Armazenamento de fotos e assinaturas (BLOB).
-
-## 🤝 Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
-**Desenvolvido por Matheus dos Santos**
-[LinkedIn](https://www.linkedin.com/in/matheus-dos-santos-silva6/) | [GitHub](https://github.com/theussant)
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/theussant/service-manager-web.git](https://github.com/theussant/service-manager-web.git)
+   cd service-manager-web
