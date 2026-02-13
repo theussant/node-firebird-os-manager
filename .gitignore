@@ -1,0 +1,54 @@
+# --- DEPENDÊNCIAS ---
+node_modules/
+package-lock.json # Opcional: Algumas pessoas gostam de subir, outras não. Para portfólio, pode deixar subir ou ignorar.
+
+# --- SEGURANÇA & AMBIENTE ---
+.env
+.env.local
+.env.test
+.env.production
+.env.*.local
+
+# --- BANCO DE DADOS ---
+# Bloqueia qualquer arquivo de banco Firebird em qualquer pasta
+*.FDB
+*.fdb
+*.GDB
+*.gdb
+
+# Garante que o script de criação do banco suba
+!database/schema.sql
+
+# Bloqueia outros tipos de banco locais
+*.sqlite
+*.sqlite3
+*.db
+
+# --- LOGS & DEBUG ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- SISTEMA OPERACIONAL ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- IDE & EDITORES ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- ARQUIVOS TEMPORÁRIOS ---
+*.tmp
+*.bak
+*.swp
+
+# --- UPLOADS (OPCIONAL) ---
+public/uploads/*
+!public/uploads/.gitkeep

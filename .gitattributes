@@ -1,0 +1,20 @@
+# Padronização de quebra de linha
+* text=auto
+
+# Arquivos de texto específicos
+*.js text
+*.json text
+*.css text
+*.html text
+*.ejs text
+*.md text
+*.sql text
+
+# Arquivos Binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.FDB binary
