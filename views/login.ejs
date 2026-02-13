@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Service Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- RESET & BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            line-height: 1.5; 
+            color: #1f2937; 
+            height: 100vh;
+            overflow: hidden; /* Prevent scroll */
+        }
+        
+        .container { 
+            height: 100%; 
+            display: flex; 
+        }
+        
+        /* --- LEFT SIDE (FORM) --- */
+        .login-section { 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 2rem; 
+            background-color: white; 
+            position: relative;
+        }
+        
+        .login-content { 
+            width: 100%; 
+            max-width: 400px; 
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Logo Area */
+        .brand { margin-bottom: 2.5rem; text-align: center; }
+        .brand-icon { 
+            font-size: 3rem; 
+            color: #2563eb; 
+            margin-bottom: 1rem; 
+            display: inline-block;
+        }
+        .brand h1 { 
+            font-size: 2rem; 
+            font-weight: 800; 
+            color: #111827; 
+            margin-bottom: 0.5rem; 
+            letter-spacing: -0.5px;
+        }
+        .brand p { color: #6b7280; font-size: 0.95rem; }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            color: #374151; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+        }
+        
+        .input-wrapper { position: relative; }
+        .input-icon { 
+            position: absolute; 
+            left: 1rem; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #9ca3af; 
+            font-size: 1rem; 
+            pointer-events: none;
+        }
+        
+        input[type="text"], input[type="password"] {
+            width: 100%; 
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 1px solid #d1d5db; 
+            border-radius: 0.5rem; 
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+        input:focus { 
+            outline: none; 
+            border-color: #2563eb; 
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); 
+        }
+
+        .btn-submit {
+            width: 100%; 
+            padding: 0.875rem 1rem; 
+            background-color: #2563eb; 
+            color: white;
+            border: none; 
+            border-radius: 0.5rem; 
+            font-size: 1rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 1rem;
+        }
+        .btn-submit:hover { background-color: #1d4ed8; }
+        .btn-submit:active { transform: scale(0.98); }
+
+        .error-box {
+            background: #fef2f2; 
+            color: #b91c1c; 
+            padding: 0.75rem;
+            border-radius: 0.5rem; 
+            margin-bottom: 1.5rem; 
+            border: 1px solid #fca5a5; 
+            text-align: center;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* --- RIGHT SIDE (BRANDING) --- */
+        .branding-section {
+            display: none; 
+            width: 50%; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 3rem;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Abstract Shapes Background */
+        .branding-section::before {
+            content: '';
+            position: absolute;
+            top: -10%; left: -10%;
+            width: 40%; height: 40%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .branding-section::after {
+            content: '';
+            position: absolute;
+            bottom: -5%; right: -5%;
+            width: 30%; height: 30%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .branding-content { 
+            text-align: center; 
+            color: white; 
+            max-width: 32rem; 
+            z-index: 2;
+        }
+        
+        .illustration-icon {
+            font-size: 8rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .branding-content h2 { 
+            font-size: 2.25rem; 
+            font-weight: 800; 
+            margin-bottom: 1rem; 
+            line-height: 1.2;
+        }
+        .branding-content p { 
+            font-size: 1.125rem; 
+            opacity: 0.9; 
+            line-height: 1.6;
+        }
+
+        /* --- MEDIA QUERIES --- */
+        @media (min-width: 1024px) {
+            .login-section { width: 50%; }
+            .branding-section { display: flex; }
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="login-section">
+        <div class="login-content">
+
+            <div class="brand">
+                <i class="fas fa-tools brand-icon"></i>
+                <h1>Service Manager</h1>
+                <p>Sign in to manage technical service orders</p>
+            </div>
+
+            <% if (message) { %>
+                <div class="error-box">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><%= message %></span>
+                </div>
+            <% } %>
+
+            <form action="/auth/login" method="POST">
+                <div class="form-group">
+                    <label for="usuario">Username</label>
+                    <div class="input-wrapper">
+                        <i class="far fa-user input-icon"></i>
+                        <input type="text" id="usuario" name="usuario" placeholder="Enter your username" required autofocus />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="senha" name="senha" placeholder="Enter your password" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    Sign In
+                </button>
+                
+                <p style="text-align: center; margin-top: 1.5rem; color: #9ca3af; font-size: 0.85rem;">
+                    &copy; <%= new Date().getFullYear() %> Service Manager Portfolio
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div class="branding-section">
+        <div class="branding-content">
+            <i class="fas fa-clipboard-check illustration-icon"></i>
+            
+            <h2>Streamline Your Workflow</h2>
+            <p>
+                A complete solution for managing service orders, tracking technical status, 
+                and automating customer notifications via WhatsApp.
+            </p>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Service Order #<%= os.ID_OS %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- GLOBAL STYLES --- */
+        :root { --primary: #2563eb; --bg: #f3f4f6; --text: #1f2937; --border: #d1d5db; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+        
+        /* --- FORM CARDS --- */
+        .form-container { background: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .form-section { margin-bottom: 2rem; border-bottom: 1px solid #f3f4f6; padding-bottom: 1.5rem; }
+        .form-section:last-child { border-bottom: none; }
+        
+        .form-label { font-size: 0.875rem; color: #4b5563; font-weight: 600; margin-bottom: 0.5rem; display: block; }
+        .form-input, .form-textarea, .form-select { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.375rem; font-size: 1rem; background: #fff; box-sizing: border-box; transition: border-color 0.2s; }
+        .form-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .form-input:disabled { background-color: #f9fafb; color: #6b7280; cursor: not-allowed; }
+
+        /* --- ACTION BAR --- */
+        .action-bar { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 2rem; }
+        .btn { width: 100%; padding: 0.875rem; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 0.5rem; transition: filter 0.2s; }
+        .btn:hover { filter: brightness(90%); }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-print { background: #4b5563; color: white; }
+        .btn-back { background: transparent; color: #4b5563; border: 1px solid #e5e7eb; }
+        
+        /* --- HEADER & BANNERS --- */
+        .local-header { margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; }
+        .local-header h1 { font-size: 1.875rem; font-weight: 800; color: #111827; margin: 0; }
+        .closed-banner { background: #ecfdf5; color: #065f46; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid #a7f3d0; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+
+        /* --- EQUIPMENT CARD --- */
+        .equip-card { background-color: #eff6ff; border: 1px solid #dbeafe; border-radius: 0.5rem; padding: 1.25rem; margin-bottom: 1.5rem; }
+        .equip-title { font-size: 1.25rem; font-weight: 700; color: #1e40af; margin: 0 0 0.5rem 0; }
+        .equip-defect { font-size: 1rem; color: #4b5563; font-style: italic; }
+
+        /* --- ITEMS TABLE --- */
+        .items-box { background: #f9fafb; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; margin-bottom: 1rem; }
+        .items-grid { display: grid; grid-template-columns: 2fr 0.5fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
+        .items-table th { background: #f9fafb; font-weight: 600; color: #4b5563; padding: 0.75rem; text-align: left; border-bottom: 2px solid #e5e7eb; }
+        .items-table td { padding: 0.75rem; border-bottom: 1px solid #f3f4f6; }
+        .btn-add-item { background: #16a34a; color: white; border: none; padding: 0.75rem; border-radius: 0.375rem; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-remove-item { color: #dc2626; background: none; border: none; font-weight: bold; cursor: pointer; }
+
+        /* --- SIGNATURE & UPLOAD --- */
+        .signature-pad-container { border: 2px dashed #d1d5db; border-radius: 0.5rem; background-color: #f9fafb; padding: 10px; margin-top: 1rem; position: relative; }
+        .signature-canvas { border: 1px solid #e5e7eb; background: white; width: 100%; height: 200px; touch-action: none; border-radius: 4px; }
+        .upload-section { background: #fdf2f8; border: 1px dashed #ec4899; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center; }
+        
+        /* --- MODAL --- */
+        .modal-overlay { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        .modal-content { max-width: 90%; max-height: 90vh; border-radius: 4px; }
+
+        /* --- PRINT STYLES --- */
+        #print-layout { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #print-layout, #print-layout * { visibility: visible; }
+            #print-layout { display: block !important; position: absolute; left: 0; top: 0; width: 100%; font-family: Arial, sans-serif; font-size: 12px; }
+            .print-table { width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 10px; }
+            .print-table td { border: 1px solid #000; padding: 5px; vertical-align: top; }
+            .section-header { background-color: #eee !important; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 1cm; size: A4; }
+        }
+    </style>
+</head>
+<body>
+
+<%- include('../layout', { body: '' }).toString().match(/<header[\s\S]*?<\/header>/) ? '' : '' %>
+
+<div class="container">
+    <div class="local-header">
+        <h1>OS #<%= os.ID_OS %></h1>
+        <p style="color: #6b7280; margin-top: 0.25rem;">Detalhes do Atendimento Técnico</p>
+    </div>
+
+    <% if (isClosed) { %>
+        <div class="closed-banner no-print">
+            <i class="fas fa-lock"></i> OS FECHADA - Edição Bloqueada
+        </div>
+    <% } %>
+
+    <form id="formOS" action="<%= formAction %>" method="POST" class="form-container">
+        
+        <div class="equip-card">
+            <h3 class="equip-title"><i class="fas fa-laptop"></i> <%= os.NOME_EQUIPAMENTO_COMPLETO %></h3>
+            <div class="equip-defect"><b>Defeito Reportado:</b> "<%= os.TEXTO_DEFEITO %>"</div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="form-label" style="font-size: 1.1rem; margin-bottom: 1rem;">🛠️ Peças e Serviços</h3>
+            
+            <% if (isEditable) { %>
+                <div class="items-box">
+                    <div class="items-grid">
+                        <div>
+                            <label class="form-label">Buscar Produto/Serviço</label>
+                            <input type="text" id="item_busca" list="dl_produtos" class="form-input" placeholder="Digite para buscar..." oninput="pesquisarDinamico(this.value)">
+                            <datalist id="dl_produtos"></datalist>
+                        </div>
+                        <div>
+                            <label class="form-label">Qtd</label>
+                            <input type="number" id="item_qtd" class="form-input" value="1" min="1">
+                        </div>
+                        <div>
+                            <label class="form-label">Valor (R$)</label>
+                            <input type="number" id="item_valor" class="form-input" placeholder="0.00" readonly style="background: #e9ecef;">
+                        </div>
+                    </div>
+                    <input type="hidden" id="item_cod">
+                    <input type="hidden" id="item_nome_real">
+                    <button type="button" class="btn-add-item" id="btn_add_item" onclick="adicionarItem()"><i class="fas fa-plus"></i> Adicionar Item</button>
+                </div>
+            <% } %>
+
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th width="80" align="center">Qtd</th>
+                        <th width="100" align="right">Unit.</th>
+                        <th width="100" align="right">Total</th>
+                        <% if (isEditable) { %><th width="40"></th><% } %>
+                    </tr>
+                </thead>
+                <tbody id="lista_itens_body">
+                    </tbody>
+            </table>
+            
+            <input type="hidden" id="server_items_data" value='<%= (typeof itens !== "undefined" && itens) ? JSON.stringify(itens) : "[]" %>'>
+            <input type="hidden" name="lista_itens_json" id="lista_itens_json">
+        </div>
+
+        <% if (isEditable) { %>
+            <div class="upload-section no-print">
+                <div style="color: #be185d; font-weight: 700; margin-bottom: 0.5rem;"><i class="fas fa-camera"></i> Anexar Evidências</div>
+                <label class="btn" style="background: white; border: 1px solid #db2777; color: #db2777; width: auto; display: inline-flex;">
+                    <input type="file" id="foto_input" accept="image/*" style="display: none;">
+                    Escolher Foto
+                </label>
+                <input type="text" name="nova_foto_descricao" id="nova_foto_descricao" class="form-input" placeholder="Descrição (ex: Tela quebrada)" style="display: none; margin-top: 10px;">
+                <input type="hidden" name="nova_foto_base64" id="nova_foto_base64">
+                
+                <div id="preview_container" style="display: none; margin-top: 10px;">
+                    <img id="preview_img" style="max-height: 150px; border-radius: 4px;">
+                    <br>
+                    <button type="button" id="btn_remover_foto" style="color: #dc2626; border: none; background: none; font-weight: bold; cursor: pointer; margin-top: 5px;">Cancelar</button>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (typeof fotos !== 'undefined' && fotos.length > 0) { %>
+            <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 1.5rem;">
+                <% fotos.forEach(foto => { %>
+                    <% if (foto.SRC) { %>
+                        <div style="flex: 0 0 100px;">
+                            <img src="<%= foto.SRC %>" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; cursor: pointer;" onclick="abrirModal(this.src, '<%= foto.DESC %>')">
+                        </div>
+                    <% } %>
+                <% }) %>
+            </div>
+        <% } %>
+
+        <div class="form-section">
+            <h3 class="form-label" style="font-size: 1.1rem;">👤 Dados do Cliente</h3>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                <div><label class="form-label">Nome</label><input type="text" class="form-input" value="<%= os.NOME_CLIENTE_REAL %>" disabled></div>
+                <% if (os.CNPJ) { %><div><label class="form-label">CPF/CNPJ</label><input type="text" class="form-input" value="<%= os.CNPJ %>" disabled></div><% } %>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="form-label" style="font-size: 1.1rem; color: var(--primary);">📋 Parecer Técnico</h3>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label class="form-label">Status Atual</label>
+                <select name="ID_STATUS" class="form-select" <%= isEditable ? '' : 'disabled' %>>
+                    <option value="23" <%= os.ID_STATUS == 23 ? 'selected' : '' %>>🔵 NOVO / AGUARDANDO</option>
+                    <option value="21" <%= os.ID_STATUS == 21 ? 'selected' : '' %>>🟠 EM ANDAMENTO / ANÁLISE</option>
+                    <option value="22" <%= os.ID_STATUS == 22 ? 'selected' : '' %>>🟣 CONCLUÍDO (Aguardando Retirada)</option>
+                    <% if (os.ID_STATUS == 9) { %> <option value="9" selected>⚫ FECHADO</option> <% } %>
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label">Laudo Técnico (Observações)</label>
+                <textarea name="OBSERVACAO" class="form-textarea" rows="8" <%= isEditable ? '' : 'disabled' %> placeholder="Descreva o serviço realizado..."><%= os.OBSERVACAO_TEXTO %></textarea>
+            </div>
+        </div>
+
+        <div class="form-section" style="border-bottom: none;">
+            <h3 class="form-label" style="font-size: 1.1rem;">✍️ Assinatura do Cliente</h3>
+            <div class="signature-pad-container">
+                <canvas id="signature-pad" class="signature-canvas"></canvas>
+                <input type="hidden" name="assinatura_base64" id="assinatura_base64">
+                <div style="position: absolute; top: 10px; right: 10px;">
+                    <% if (isEditable) { %>
+                        <button type="button" id="clear-sig" style="background: white; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Limpar</button>
+                    <% } %>
+                </div>
+            </div>
+            <% if (typeof assinatura !== 'undefined' && assinatura) { %>
+                <div style="margin-top: 10px;">
+                    <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">Assinatura Salva:</p>
+                    <img src="<%= assinatura %>" style="max-width: 200px; border: 1px solid #eee;">
+                </div>
+            <% } %>
+        </div>
+
+        <div class="action-bar">
+            <button type="button" class="btn" style="background-color: #25D366; color: white;" onclick="notificarBase(this)">
+                <i class="fab fa-whatsapp"></i> Check-out Técnico (WhatsApp)
+            </button>
+
+            <button type="button" class="btn btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir OS
+            </button>
+            
+            <% if (isEditable) { %>
+                <button type="submit" class="btn btn-save">
+                    <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
+                </button>
+            <% } %>
+            
+            <a href="/dashboard" class="btn btn-back">Voltar para o Dashboard</a>
+        </div>
+    </form>
+</div>
+
+<div id="print-layout">
+    <table class="print-table">
+        <tr>
+            <td width="70%" style="font-size: 16px; font-weight: bold;">
+                ORDEM DE SERVIÇO #<%= os.ID_OS %>
+            </td>
+            <td width="30%" align="right">
+                DATA: <%= os.DT_OS_FMT %>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <strong>EMPRESA PRESTADORA DE SERVIÇOS TI</strong><br>
+                CNPJ: 00.000.000/0001-00<br>
+                Tel: (11) 99999-9999
+            </td>
+        </tr>
+    </table>
+
+    <table class="print-table">
+        <tr><td class="section-header">DADOS DO CLIENTE</td></tr>
+        <tr>
+            <td>
+                <strong>Nome:</strong> <%= os.NOME_CLIENTE_REAL %><br>
+                <strong>Endereço:</strong> <%= os.END_LOGRAD || '' %>, <%= os.END_NUMERO || '' %> - <%= os.END_BAIRRO || '' %><br>
+                <strong>Tel:</strong> <%= os.FONE_CELUL || '-' %>
+            </td>
+        </tr>
+    </table>
+
+    <table class="print-table">
+        <tr><td class="section-header">EQUIPAMENTO / DEFEITO</td></tr>
+        <tr>
+            <td>
+                <strong>Equipamento:</strong> <%= os.NOME_EQUIPAMENTO_COMPLETO %><br>
+                <strong>Defeito Relatado:</strong> <%= os.TEXTO_DEFEITO %>
+            </td>
+        </tr>
+    </table>
+
+    <table class="print-table">
+        <tr><td class="section-header">SERVIÇOS EXECUTADOS</td></tr>
+        <tr>
+            <td>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><th align="left">Descrição</th><th align="right">Qtd</th><th align="right">Total</th></tr>
+                    <% if (typeof itens !== 'undefined' && itens && itens.length > 0) { %>
+                        <% itens.forEach((item) => { %>
+                            <tr>
+                                <td><%= item.DESCRICAO %></td>
+                                <td align="right"><%= item.QTD %></td>
+                                <td align="right"><%= item.TOTAL.toFixed(2) %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="3" align="center">- Nenhum item lançado -</td></tr>
+                    <% } %>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <table class="print-table">
+        <tr><td class="section-header">LAUDO TÉCNICO</td></tr>
+        <tr>
+            <td style="height: 80px; vertical-align: top;"><%= os.OBSERVACAO_TEXTO %></td>
+        </tr>
+    </table>
+    
+    <div style="margin-top: 50px; text-align: center;">
+        <div style="border-top: 1px solid #000; width: 60%; margin: 0 auto;"></div>
+        <br>Assinatura do Cliente
+    </div>
+</div>
+
+<div id="modalFoto" class="modal-overlay" onclick="this.style.display='none'">
+    <img class="modal-content" id="imgExpandida">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+    // --- ITEM MANAGEMENT ---
+    let listaItens = [];
+    try { 
+        const raw = document.getElementById('server_items_data').value; 
+        listaItens = JSON.parse(raw); 
+    } catch(e) { listaItens = []; }
+    
+    // Normalize properties
+    listaItens = listaItens.map(i => ({ 
+        codigo: i.CODIGO||i.codigo, 
+        descricao: i.DESCRICAO||i.descricao, 
+        qtd: parseFloat(i.QTD||i.qtd||0), 
+        unitario: parseFloat(i.UNITARIO||i.unitario||0), 
+        total: parseFloat(i.TOTAL||i.total||0) 
+    }));
+
+    function renderizarItens() {
+        const tb = document.getElementById('lista_itens_body');
+        if(!tb) return;
+        tb.innerHTML = '';
+        
+        listaItens.forEach((item, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.descricao}</td>
+                <td align="center">${item.qtd}</td>
+                <td align="right">R$ ${item.unitario.toFixed(2)}</td>
+                <td align="right">R$ ${item.total.toFixed(2)}</td>
+                <% if(isEditable){ %>
+                    <td align="center"><button type="button" class="btn-remove-item" onclick="removerItem(${idx})"><i class="fas fa-trash"></i></button></td>
+                <% } %>
+            `;
+            tb.appendChild(tr);
+        });
+        document.getElementById('lista_itens_json').value = JSON.stringify(listaItens);
+    }
+
+    // --- PRODUCT AUTOCOMPLETE ---
+    let timeoutBusca = null;
+    let produtosCache = [];
+    
+    async function pesquisarDinamico(termo) {
+        if (timeoutBusca) clearTimeout(timeoutBusca);
+        if (termo.includes(' - R$')) { selecionarProduto(termo); return; }
+        if (termo.length < 2) return;
+        
+        timeoutBusca = setTimeout(async () => {
+            try {
+                const res = await fetch('/os/api/produtos?q=' + encodeURIComponent(termo));
+                produtosCache = await res.json();
+                const dl = document.getElementById('dl_produtos'); 
+                dl.innerHTML = '';
+                produtosCache.forEach(p => { 
+                    const o = document.createElement('option'); 
+                    o.value = `${p.id} - ${p.nome} - R$ ${p.preco.toFixed(2)}`; 
+                    dl.appendChild(o); 
+                });
+            } catch(e){}
+        }, 300);
+    }
+
+    function selecionarProduto(val) {
+        if(!val.includes(' - R$')) return;
+        const id = val.split(' - ')[0];
+        const p = produtosCache.find(x => x.id == id);
+        if (p) {
+            document.getElementById('item_cod').value = p.id;
+            document.getElementById('item_nome_real').value = p.nome;
+            document.getElementById('item_valor').value = p.preco.toFixed(2);
+            document.getElementById('item_qtd').focus();
+        }
+    }
+
+    function adicionarItem() {
+        const cod = document.getElementById('item_cod').value;
+        const qtd = parseFloat(document.getElementById('item_qtd').value) || 1;
+        const valor = parseFloat(document.getElementById('item_valor').value) || 0;
+        let nome = document.getElementById('item_nome_real').value;
+        
+        if(!nome) nome = document.getElementById('item_busca').value; // Free text support
+        if(!cod && !nome) return alert("Digite ou selecione um produto.");
+        
+        listaItens.push({ codigo: cod || 0, descricao: nome, qtd, unitario: valor, total: qtd * valor });
+        renderizarItens();
+        
+        // Clear fields
+        document.getElementById('item_busca').value=''; 
+        document.getElementById('item_cod').value=''; 
+        document.getElementById('item_nome_real').value=''; 
+        document.getElementById('item_qtd').value='1'; 
+        document.getElementById('item_valor').value='';
+    }
+
+    window.removerItem = function(i) { listaItens.splice(i, 1); renderizarItens(); };
+    renderizarItens();
+
+    // --- PHOTO UPLOAD PREVIEW ---
+    const finput = document.getElementById('foto_input');
+    if(finput) {
+        finput.addEventListener('change', function(e) {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onloadend = function() { 
+                document.getElementById('nova_foto_base64').value = r.result; 
+                document.getElementById('preview_img').src = r.result; 
+                document.getElementById('preview_container').style.display = 'block'; 
+                document.getElementById('nova_foto_descricao').style.display = 'block'; 
+            };
+            r.readAsDataURL(f);
+        });
+        
+        document.getElementById('btn_remover_foto').addEventListener('click', function(){ 
+            finput.value=''; 
+            document.getElementById('nova_foto_base64').value=''; 
+            document.getElementById('preview_container').style.display='none'; 
+        });
+    }
+
+    function abrirModal(src) { 
+        document.getElementById("imgExpandida").src = src; 
+        document.getElementById("modalFoto").style.display = "flex"; 
+    }
+
+    // --- DIGITAL SIGNATURE ---
+    document.addEventListener("DOMContentLoaded", function() {
+        const canvas = document.getElementById('signature-pad');
+        if (canvas) {
+            const hiddenInput = document.getElementById('assinatura_base64');
+            const clearBtn = document.getElementById('clear-sig');
+            const form = document.getElementById('formOS');
+            
+            function resizeCanvas() { 
+                const ratio = Math.max(window.devicePixelRatio || 1, 1); 
+                canvas.width = canvas.offsetWidth * ratio; 
+                canvas.height = canvas.offsetHeight * ratio; 
+                canvas.getContext("2d").scale(ratio, ratio); 
+            }
+            window.addEventListener("resize", resizeCanvas); 
+            resizeCanvas();
+            
+            const pad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)' });
+            
+            if(clearBtn) clearBtn.addEventListener('click', function(){ pad.clear(); hiddenInput.value=""; }); 
+            else pad.off(); // Disable editing if not editable
+            
+            if(form) form.onsubmit = function() { 
+                if(!pad.isEmpty()) hiddenInput.value = pad.toDataURL('image/png'); 
+            };
+        }
+    });
+
+    // --- WHATSAPP NOTIFICATION (GENERIC) ---
+    function notificarBase(btnElement) {
+        // Generic Placeholder Number (Update in .env or config for real usage)
+        const companyPhone = "5511999999999"; 
+
+        const idOs = "<%= os.ID_OS %>";
+        const cliente = "<%= os.NOME_CLIENTE_REAL %>";
+        let laudo = document.querySelector('textarea[name="OBSERVACAO"]').value || "Serviço realizado.";
+        
+        if (laudo.length > 200) laudo = laudo.substring(0, 200) + "...";
+
+        const nextDest = prompt("📍 Próximo Destino / Status?");
+        if (nextDest === null) return;
+
+        let msg = `*🏁 CHECK-OUT TÉCNICO - OS #${idOs}*\n\n`;
+        msg += `👤 *Cliente:* ${cliente}\n`;
+        msg += `📝 *Laudo:* ${laudo}\n`;
+        msg += `🚀 *Próximo:* ${nextDest}`;
+
+        // Feedback Animation
+        if (btnElement) {
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-check"></i> Enviando...';
+            btnElement.style.background = "#15803d";
+            setTimeout(() => { 
+                btnElement.innerHTML = originalText; 
+                btnElement.style.background = "#25D366"; 
+            }, 3000);
+        }
+
+        const url = `https://wa.me/${companyPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    }
+</script>
+</body>
+</html>

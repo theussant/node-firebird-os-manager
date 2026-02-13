@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Service Manager</title>
+    
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <%- include('base-styles') %>
+
+    <style>
+        /* --- LAYOUT STRUCTURE --- */
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--bg-body);
+        }
+        
+        /* --- SIDEBAR (Desktop) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header { 
+            padding: 1.5rem; 
+            border-bottom: 1px solid var(--border-color); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            text-decoration: none; 
+            cursor: pointer;
+        }
+        
+        .sidebar-brand { 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            color: var(--primary); 
+            letter-spacing: -0.5px;
+        }
+        
+        .sidebar-nav { 
+            padding: 1.5rem 1rem; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.5rem; 
+        }
+        
+        .nav-item {
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            padding: 0.875rem 1rem;
+            color: var(--text-muted); 
+            text-decoration: none; 
+            border-radius: 0.5rem; 
+            transition: all 0.2s; 
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .nav-item:hover { 
+            background-color: #f3f4f6; 
+            color: var(--text-main); 
+        }
+        
+        .nav-item.active { 
+            background-color: #eff6ff; 
+            color: var(--primary); 
+        }
+        
+        .nav-item i { width: 20px; text-align: center; }
+
+        /* --- MAIN CONTENT WRAPPER --- */
+        .main-wrapper { 
+            flex: 1; 
+            margin-left: 260px; 
+            width: calc(100% - 260px); 
+            /* Padding is handled by base-styles inside the views */
+        }
+
+        /* --- MOBILE NAVIGATION (Bottom Bar) --- */
+        .mobile-nav {
+            display: none;
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 65px;
+            background: var(--bg-white); 
+            border-top: 1px solid var(--border-color); 
+            z-index: 100;
+            justify-content: space-around; 
+            align-items: center;
+            box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .mobile-nav-item {
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            text-decoration: none; 
+            color: #9ca3af; 
+            font-size: 0.75rem; 
+            gap: 4px;
+            width: 100%; 
+            height: 100%;
+        }
+        
+        .mobile-nav-item i { font-size: 1.25rem; margin-bottom: 2px; }
+        .mobile-nav-item.active { color: var(--primary); font-weight: 600; }
+
+        /* --- RESPONSIVE BREAKPOINTS --- */
+        @media (max-width: 1023px) {
+            .sidebar { transform: translateX(-100%); } /* Hide sidebar */
+            .main-wrapper { margin-left: 0; width: 100%; padding-bottom: 80px; }
+            .mobile-nav { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="/dashboard" class="sidebar-header">
+            <i class="fas fa-tools fa-lg" style="color: var(--primary);"></i>
+            <span class="sidebar-brand">Service Manager</span>
+        </a>
+        
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            
+            <a href="/os" class="nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'os' ? 'active' : '' %>">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Service Orders</span>
+            </a>
+            
+            <a href="/auth/logout" class="nav-item" style="margin-top: auto; color: #ef4444;" onclick="return confirm('Are you sure you want to logout?');">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="main-wrapper">
+        <%- body %>
+    </div>
+
+    <nav class="mobile-nav">
+        <a href="/dashboard" class="mobile-nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>">
+            <i class="fas fa-chart-pie"></i>
+            <span>Stats</span>
+        </a>
+
+        <a href="/os" class="mobile-nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'os' ? 'active' : '' %>">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Tickets</span>
+        </a>
+
+        <a href="/auth/logout" class="mobile-nav-item" style="color: #ef4444;" onclick="return confirm('Logout?');">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Exit</span>
+        </a>
+    </nav>
+
+</body>
+</html>

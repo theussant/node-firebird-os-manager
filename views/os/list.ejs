@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Service Orders List - Service Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- RESET & BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f3f4f6; color: #1f2937; line-height: 1.5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        /* --- HEADER --- */
+        .page-header { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        @media(min-width: 768px) { .page-header { flex-direction: row; justify-content: space-between; align-items: center; } }
+        .page-title { font-size: 1.5rem; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 0.5rem; }
+        
+        /* --- SEARCH BAR --- */
+        .search-bar { background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        @media(min-width: 768px) { .search-bar { flex-direction: row; } }
+        
+        .search-input { flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #2563eb; outline: none; }
+        .search-date { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; }
+        @media(min-width: 768px) { .search-date { width: 180px; } }
+        
+        .btn-search { background-color: #1f2937; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s; }
+        .btn-search:hover { background-color: #111827; }
+        .btn-clear { color: #dc2626; text-decoration: none; font-weight: 600; display: flex; align-items: center; padding: 0 1rem; }
+
+        /* --- FILTERS (PILLS) --- */
+        .status-filters { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+        .filter-pill { padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600; text-decoration: none; color: #4b5563; background: #e5e7eb; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .filter-pill:hover { background: #d1d5db; }
+        .filter-pill.active { background: #2563eb; color: white; }
+
+        /* --- GRID LIST --- */
+        .os-list { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 640px) { .os-list { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .os-list { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1280px) { .os-list { grid-template-columns: repeat(4, 1fr); } }
+        
+        /* --- CARD COMPONENT --- */
+        .os-card { background: white; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-left: 5px solid #ccc; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .os-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+
+        /* Status Colors (Border) */
+        .border-st-23 { border-left-color: #2563eb; } /* NEW: Blue */
+        .border-st-21 { border-left-color: #f59e0b; } /* IN PROGRESS: Orange */
+        .border-st-22 { border-left-color: #8b5cf6; } /* COMPLETED: Purple */
+        .border-st-9  { border-left-color: #1f2937; } /* CLOSED: Dark */
+        
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 0.75rem; align-items: flex-start; }
+        .os-id { font-weight: 800; color: #9ca3af; font-size: 0.875rem; letter-spacing: 0.05em; }
+        .os-date { font-size: 0.75rem; font-weight: 600; color: #6b7280; background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 0.25rem; }
+        
+        .os-problem { font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem; line-height: 1.4; }
+        .os-defect { font-size: 0.875rem; color: #6b7280; font-style: italic; margin-bottom: 1rem; display: block; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .os-client { font-size: 0.875rem; font-weight: 600; color: #2563eb; display: flex; align-items: center; gap: 0.4rem; margin-bottom: auto; }
+        
+        .card-footer { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f3f4f6; font-size: 0.75rem; color: #9ca3af; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* --- EMPTY STATE --- */
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: white; border-radius: 0.75rem; border: 1px dashed #e5e7eb; color: #6b7280; }
+        .empty-icon { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
+
+        /* --- PAGINATION --- */
+        .pagination { display: flex; justify-content: center; gap: 1rem; align-items: center; margin-top: 2rem; padding-bottom: 2rem; }
+        .page-btn { padding: 0.5rem 1rem; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem; text-decoration: none; color: #374151; font-weight: 600; transition: background 0.2s; }
+        .page-btn:hover { background: #f9fafb; }
+        .page-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .page-info { font-weight: 600; color: #4b5563; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    
+    <%- include('../layout', { body: '' }).toString().match(/<header[\s\S]*?<\/header>/) ? '' : '' %>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-clipboard-list" style="color: #2563eb;"></i>
+                <% if (filtroSearch) { %> Searching: "<%= filtroSearch %>" <% } 
+                   else if (filtroStatus == '23') { %> New Tickets <% } 
+                   else if (filtroStatus == '21') { %> In Progress <% } 
+                   else if (filtroStatus == '22') { %> Completed (Waiting Pickup) <% } 
+                   else if (filtroStatus == '9') { %> Closed Tickets <% } 
+                   else { %> All Service Orders <% } %>
+            </h1>
+        </div>
+
+        <form action="/os" method="GET" class="search-bar">
+            <% if(filtroStatus) { %> <input type="hidden" name="status" value="<%= filtroStatus %>"> <% } %>
+            
+            <input type="text" name="search" class="search-input" placeholder="Search Client, OS ID or Tax ID..." value="<%= filtroSearch %>">
+            <input type="date" name="date" class="search-date" value="<%= filtroDate %>">
+            
+            <button type="submit" class="btn-search"><i class="fas fa-search"></i> Search</button>
+            <% if(filtroSearch || filtroDate) { %> 
+                <a href="/os" class="btn-clear"><i class="fas fa-times"></i> Clear</a> 
+            <% } %>
+        </form>
+
+        <div class="status-filters">
+            <a href="/os" class="filter-pill <%= !filtroStatus ? 'active' : '' %>">All</a>
+            <a href="/os?status=23" class="filter-pill <%= filtroStatus=='23' ? 'active' : '' %>"><span style="color: #2563eb;">●</span> New</a>
+            <a href="/os?status=21" class="filter-pill <%= filtroStatus=='21' ? 'active' : '' %>"><span style="color: #f59e0b;">●</span> In Progress</a>
+            <a href="/os?status=22" class="filter-pill <%= filtroStatus=='22' ? 'active' : '' %>"><span style="color: #8b5cf6;">●</span> Completed</a>
+            <a href="/os?status=9" class="filter-pill <%= filtroStatus=='9' ? 'active' : '' %>"><span style="color: #374151;">●</span> Closed</a>
+        </div>
+
+        <div class="os-list">
+            <% if (osList && osList.length > 0) { %>
+                <% osList.forEach(os => { %>
+                    <div class="os-card border-st-<%= os.ID_STATUS %>" onclick="window.location.href='/os/edit/<%= os.ID_OS %>'" role="button" tabindex="0">
+                        
+                        <div class="card-header">
+                            <span class="os-id">#<%= os.ID_OS %></span>
+                            <span class="os-date"><i class="far fa-calendar-alt"></i> <%= os.DT_OS ? new Date(os.DT_OS).toLocaleDateString('pt-BR') : '-' %></span>
+                        </div>
+                        
+                        <div>
+                            <div class="os-problem"><%= os.TITULO_EQUIPAMENTO %></div>
+                            <span class="os-defect"><%= os.RESUMO_DEFEITO ? os.RESUMO_DEFEITO : 'No defect description provided.' %></span>
+                        </div>
+
+                        <span class="os-client"><i class="far fa-building"></i> <%= os.NOME_REAL_CLIENTE %></span>
+                        
+                        <div class="card-footer">
+                            <span><i class="far fa-user"></i> <%= os.COMPRADOR || 'N/A' %></span>
+                            <% if (os.STATUS_TEXTO == 'novo') { %> 
+                                <span style="color: #2563eb; font-weight: bold;">New</span>
+                            <% } else if (os.STATUS_TEXTO == 'andamento') { %> 
+                                <span style="color: #f59e0b; font-weight: bold;">In Progress</span>
+                            <% } else if (os.STATUS_TEXTO == 'concluido') { %> 
+                                <span style="color: #8b5cf6; font-weight: bold;">Pickup Ready</span>
+                            <% } else if (os.STATUS_TEXTO == 'fechado') { %> 
+                                <span style="color: #374151; font-weight: bold;">Closed</span>
+                            <% } else { %> 
+                                <span>-</span>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="far fa-folder-open"></i></div>
+                    <h3>No Service Orders Found</h3>
+                    <p>Try adjusting your search filters or date range.</p>
+                    <% if (typeof error !== 'undefined' && error) { %> <p style="color:#dc2626; margin-top:10px;"><%= error %></p> <% } %>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+            <div class="pagination">
+                <a href="/os?page=<%= page - 1 %>&status=<%= filtroStatus || '' %>&search=<%= filtroSearch || '' %>&date=<%= filtroDate || '' %>" class="page-btn <%= page <= 1 ? 'disabled' : '' %>">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+                <span class="page-info">Page <%= page %> of <%= totalPages %></span>
+                <a href="/os?page=<%= page + 1 %>&status=<%= filtroStatus || '' %>&search=<%= filtroSearch || '' %>&date=<%= filtroDate || '' %>" class="page-btn <%= page >= totalPages ? 'disabled' : '' %>">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+</body>
+</html>
