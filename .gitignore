@@ -17,7 +17,7 @@ package-lock.json # Opcional: Algumas pessoas gostam de subir, outras não. Para
 *.gdb
 
 # Garante que o script de criação do banco suba
-!database/schema.sql
+!database/database_schema.sql
 
 # Bloqueia outros tipos de banco locais
 *.sqlite

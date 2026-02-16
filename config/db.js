@@ -2,11 +2,28 @@ require('dotenv').config();
 const Firebird = require('node-firebird');
 const path = require('path');
 
-// Database Connection Configuration
+// Resolve o caminho do banco de dados de forma inteligente
+const getDatabasePath = () => {
+    const envPath = process.env.DB_DATABASE;
+    
+    // Se não houver nada no .env, usa o padrão na pasta database
+    if (!envPath) {
+        return path.join(__dirname, '../database/database.fdb');
+    }
+
+    // Se o caminho no .env for absoluto (ex: C:/... ou /home/...), usa ele direto
+    if (path.isAbsolute(envPath)) {
+        return envPath;
+    }
+
+    // Se for relativo (ex: "database/database.fdb"), resolve a partir da RAIZ do projeto
+    return path.resolve(process.cwd(), envPath);
+};
+
 const options = {
     host: process.env.DB_HOST || '127.0.0.1',
     port: parseInt(process.env.DB_PORT) || 3050,
-    database: process.env.DB_DATABASE || path.join(__dirname, '../database/database.fdb'),
+    database: getDatabasePath(), // Agora o caminho é dinâmico e seguro
     user: process.env.DB_USER || 'SYSDBA',
     password: process.env.DB_PASSWORD || 'masterkey',
     lowercase_keys: false,

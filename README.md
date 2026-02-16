@@ -1,5 +1,7 @@
 # 🛠️ Service Manager Web
 
+[Português](./README.pt-br.md) | [Español](./README.es.md) | **English**
+
 ![Badge Status](https://img.shields.io/badge/Status-Completed-success)
 ![Badge Node](https://img.shields.io/badge/Node.js-v18+-green)
 ![Badge Firebird](https://img.shields.io/badge/Database-FirebirdSQL-orange)
@@ -12,8 +14,6 @@
 This project was born from the need to streamline service in technical assistance environments. The main goal was to create a modern, responsive, and agile web interface that consumes data directly from a legacy Desktop ERP, without the need for complex data migrations.
 
 The system allows technicians to manage Service Orders (SO) in real-time, collect digital signatures, and eliminate physical paper usage during daily operations, facilitating routine tasks and speeding up standard company procedures.
-
-
 
 ## ✨ Key Features
 
@@ -45,11 +45,22 @@ The system allows technicians to manage Service Orders (SO) in real-time, collec
 ### Prerequisites
 
 * [Node.js](https://nodejs.org/) installed (v18 or higher).
-* Firebird Database engine installed (or access to a `.FDB` file).
+* Firebird Database engine installed.
 
 ### Installation
 
-1. **Clone the repository:**
+1. **Clone and setup the project:**
+
    ```bash
+   # Clone the repository
    git clone [https://github.com/theussant/service-manager-web.git](https://github.com/theussant/service-manager-web.git)
    cd service-manager-web
+
+   # Install dependencies
+   npm install
+
+   # Setup environment (Copy .env.example to .env and fill in your credentials)
+   cp .env.example .env
+
+   # Run the application
+   npm start
